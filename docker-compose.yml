@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - OPENAI_API_KEY=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
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - .:/app
+
+  worker:
+    build: .
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - OPENAI_API_KEY=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
+    command: celery -A app.tasks.celery_app worker --loglevel=info
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"

@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+celery
+redis
+requests
+langchain
+pydantic
+python-dotenv
+pytest
+pytest-mock
