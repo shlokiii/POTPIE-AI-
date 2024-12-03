@@ -206,7 +206,7 @@ Test Summary Report
 
 Bonus Points
 
-	•	Live Deployment: The project is deployed on Render for live testing and demonstration of API functionality. Access the live API here: Live API Link.
+	•	Live Deployment: The project is deployed on Render for live testing and demonstration of API functionality. Access the live API here: https://potpie-ai-3.onrender.com
 	•	Docker Configuration: The entire application is containerized with a robust Dockerfile and docker-compose.yml, enabling seamless development and deployment across environments.
 	•	Result Caching System: Redis is used as a result backend to cache and manage task statuses efficiently, enhancing performance and reliability.
 	•	Structured Logging: Logs from FastAPI, Celery, and Redis are structured and accessible for debugging and monitoring.
