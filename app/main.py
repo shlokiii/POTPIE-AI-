@@ -13,7 +13,7 @@ def read_root():
 
 @app.post("/analyze-pr")
 def analyze_pr(request: AnalyzePRRequest):
-    task = analyze_code_task.apply_async(args=[request.model_dump()])
+    task = analyze_code_task.apply_async(args=[request.dict()])
     return {"task_id": task.id, "status": "submitted"}
 
 @app.get("/status/{task_id}")
