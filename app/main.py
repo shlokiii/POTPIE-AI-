@@ -5,6 +5,12 @@ from celery.result import AsyncResult
 
 app = FastAPI()
 
+
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to Potpie AI!"}
+
 @app.post("/analyze-pr")
 def analyze_pr(request: AnalyzePRRequest):
     task = analyze_code_task.apply_async(args=[request.model_dump()])
