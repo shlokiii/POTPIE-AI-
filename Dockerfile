@@ -15,7 +15,7 @@ COPY requirements.txt /app/
 # Install Python dependencies
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Copy the entire project to the container
+# Copy the rest of the application code to the container
 COPY . /app/
 
 # Expose the application's port
