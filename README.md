@@ -1,259 +1,148 @@
-Potpie AI: Pull Request Analysis API
-
-Potpie AI internship assignment is a web application that uses OpenAI’s GPT-4 model to analyze GitHub pull requests for code style, potential bugs, performance improvements, and adherence to best practices. This project is designed with FastAPI, Celery, and Redis for scalable task execution.
+# Intelli-Log
+
+Intelli-Log is a real-time logging SDK + CLI monitor for developers and teams who want to:
 
-Table of Contents
+✅ Track logs across multiple environments  
+✅ View real-time logs in terminal  
+✅ See alerts on high error rate  
+✅ Filter logs by environment/app  
+✅ Export logs easily  
+✅ All without any frontend!
 
-	•	Features
-	•	Project Setup Instructions
-	•	API Documentation
-	•	Design Decisions
-	•	Testing Instructions
-	•	Test Summary Report
-	•	Bonus Points
- 		
+---
 
- Features
+## Features
 
-	•	Analyze pull requests using OpenAI GPT-4.
-	•	Task queuing and background processing with Celery and Redis.
-	•	API endpoints for submitting tasks and retrieving task statuses.
-	•	Scalable and modular design.
+- Real-time log monitoring with `socket.io`
+- API-key-based authentication
+- Log levels: `info`, `warn`, `error`, `debug`
+- CLI monitoring interface
+- Auto-retry on failed sends
+- Alert if error rate exceeds threshold
+- Export logs to `.txt` via CLI
+- Supports multiple environments/apps
 
+---
 
+## Installation
 
-Project Setup Instructions
+```sh
+npm install intelli-log
+```
+###  Register and Get API Key
 
- Prerequisites
+You **must register a user and get a project API key** (using Postman or `curl`) to use Intelli-Log.
 
-	1.	Environment: Ensure Python 3.9+ and Docker are installed.
-	2.	API Key: Obtain an OpenAI API key to access GPT-4.
+```http
+POST http://localhost:5001/api/auth/register
+```
+Content-Type: application/json
 
- Steps
- 
-	1.	Clone the Repository:
- 		git clone <repository-url>
- 		cd <repository-folder>
+{
+  "email": "your@email.com",
+  "password": "yourpassword"
+}
 
- 	2.	Setup Environment Variables:
-		Create a .env file in the root directory with the following content:
-		OPENAI_API_KEY=your_openai_api_key_here
-		REDIS_URL=redis://redis:6379/0
+response:
+```sh
+{
+  "token": "...",
+  "email": "your@email.com",
+  "project": {
+    "apiKey": "YOUR_GENERATED_API_KEY"
+  }
+  ```
 
-	3.	Install Dependencies:
-		Create a virtual environment and install the required Python dependencies:
-		python3 -m venv .venv
-		source .venv/bin/activate
-		pip install -r requirements.txt
+---
 
-	4.	Run the Application Using Docker:
-		Build and start the containers:
-		docker-compose up --build
 
+## SDK Usage
 
-	5.	Access the API:
-		Open your browser and navigate to:
-		http://localhost:8000/docs
+###In your Node.js app:
 
+```sh
+const IntelliLog = require('intelli-log');
 
-API Documentation
+const logger = new IntelliLog({
+  apiKey: 'YOUR_API_KEY',
+  application: 'MyApp',
+  environment: 'production'
+});
 
- Endpoints
+logger.ready().then(() => {
+  logger.info('App started successfully');
+  logger.error('Database connection failed');
+});
+```
 
-        1. 	POST /analyze-pr
+### Simulate Logs:
+```sh
+logger.debug('Debugging variable x...');
+logger.warn('This might be an issue...');
+logger.error('Something critical broke!');
+```
+---
 
-		• Description: Submits a pull request for analysis.
-		• Request Body:
-			{
-    				"repo_url": "https://github.com/<username>/<repository>",
-    				"pr_number": 1,
-    				"github_token": "<github_personal_access_token>",
-    				"language": "python"
-			}
+### CLI Realtime Log Monitor
+## Launch your terminal-based live log monitor with:
 
-	•	Response:
-			{
-    				"task_id": "<task-id>",
-    				"status": "submitted"
-			}
- 
-	2. GET /status/{task_id}
+```sh
+npx intelli-monitor
+```
 
-		•	Description: Retrieves the status of a submitted task.
-		•	Response:
-		•	When the task is pending:
-			{
-    				"task_id": "<task-id>",
-    				"status": "pending"
-			}
-		•	When completed:
-			{
-    				"task_id": "<task-id>",
-    				"status": "completed",
-    				"result": {
-        			"style_issues": [...],
-        			"bugs": [...],
-        			"performance_improvements": [...],
-        			"best_practices": [...]
-   		 		}
-			}
+##Live Output:
 
+```sh
+📡 IntelliLog Realtime Monitor Started...
+✅ Connected to Intelli-Log backend
 
+[12:01:05] [INFO] [MyApp] [production] - Server started
+[12:01:08] [ERROR] [MyApp] [production] - DB query failed
+```
 
+### Export Logs
+While the monitor is running, press e on your keyboard.
+Logs will be saved to logs_export.txt in the same directory.
 
 
+### Auto Alerts on High Error Rate
+## If your app emits more than 5 error logs in 15 seconds, IntelliLog will alert you automatically inside the CLI monitor:
 
+```sh
+🚨 ALERT: High error rate detected!
+More than 5 errors in the last 15 seconds.
+```
 
+To simulate:
+```sh
+for (let i = 0; i < 10; i++) {
+  logger.error(`Simulated error ${i}`);
+}
+```
 
-Design Decisions
 
-	1.	FastAPI:
-		• Selected for its simplicity, async support, and automatic generation of API documentation via OpenAPI.
-	2.	Celery and Redis:
-		• Celery enables task queuing for background task execution.
-		• Redis acts as a message broker and a result backend, ensuring fast and reliable task processing.
-	3.	OpenAI Integration:
-		• GPT-4 model is leveraged for its natural language processing capabilities, making it ideal for code analysis.
-	4.	Modular Design:
-		• Designed to be modular and scalable, enabling easy integration of new features.
-	5.	Docker:
-		• Containerized the application to ensure a consistent environment across systems and simplify deployment.
+###  Filter Support (CLI)
+Want to only see logs for a specific app or environment?
 
+Update monitor.js to apply custom filters like:
 
+```sh
+const APP_FILTER = 'MyApp';
+const ENV_FILTER = 'production';
 
+if (log.application !== APP_FILTER || log.environment !== ENV_FILTER) return;
+```
+(Coming soon: CLI arguments for filtering)
 
 
+### Installation
+## Install the SDK into your app:
 
-Testing Instructions
+```sh
+npm install intelli-log
+```
+Install the monitor CLI:
+```sh
+npm install -g intelli-monitor
+```
 
- Manual Testing
-
-	1.	Start the Application:
-		docker-compose up --build
-
-	2.	Access Swagger UI:
-		Open http://localhost:8000/docs in your browser.
-	3.	Submit a Pull Request Analysis:
-		Use the POST /analyze-pr endpoint with the following request body:
-		{
-    			"repo_url": "https://github.com/example/repo",
-    			"pr_number": 1,
-    			"github_token": "your_github_token",
-    			"language": "python"
-		}
-	4.	Check Task Status:
-		Copy the task_id from the response and use the GET /status/{task_id} endpoint to check the status and retrieve results.
-	5.	Debugging Redis Keys:
-		• Access Redis CLI:
-		docker exec -it <redis-container-name> redis-cli
-		• View keys:
-		keys *
-		• Retrieve a key:
-		get <task-key>
-
-
-
-
-Automated Testing
-
-	1.	Install Testing Framework:
-		Ensure pytest is installed:
-		pip install pytest
-	2.	Run Tests:
-		Execute all test cases in the tests directory:
-		pytest
-	3.	Results:
-		• All tests were executed and passed successfully, confirming the API’s functionality and error handling.
-
-
-
-
-
- 
-
-Test Summary Report
-
- Summary
-
- All unit tests and integration tests were successfully executed using pytest. The test cases covered:
-	1.	API endpoint functionality (/analyze-pr and /status/{task_id}).
-	2.	Background task processing with Celery.
-	3.	Integration with Redis for task management and status retrieval.
-
- Results
-
-	•	Total Tests: 3
-	•	Passed: 3
-	•	Failed: 0
-	•	Warning: 1 (non-critical configuration warning).
-
- How to Run Tests
-
-	1.	Activate the virtual environment:
-		source .venv/bin/activate
-	2.	Run the pytest command:
-		pytest
-	3.	View the test results in the terminal.
-
-
-
-
-
-
-
-
- 
-
-Bonus Points
-
-	•	Live Deployment: The project is deployed on Render for live testing and demonstration of API functionality. Access the live API here: https://potpie-ai-3.onrender.com
-	•	Docker Configuration: The entire application is containerized with a robust Dockerfile and docker-compose.yml, enabling seamless development and deployment across environments.
-	•	Result Caching System: Redis is used as a result backend to cache and manage task statuses efficiently, enhancing performance and reliability.
-	•	Structured Logging: Logs from FastAPI, Celery, and Redis are structured and accessible for debugging and monitoring.
-	•	Multi-language Support: The project is modular and designed to support multiple programming languages for pull request analysis (e.g., Python, JavaScript).
-	•	Rate Limiting: The application enforces proper rate limiting for GPT-4 requests via OpenAI API to handle heavy loads gracefully.
-	•	GitHub Webhook Support: The design can be extended to integrate GitHub webhooks for real-time pull request analysis triggers.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
